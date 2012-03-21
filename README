@@ -8,10 +8,15 @@ BUILD:
         make
 
 RUN:
-        ./freetype_test [fontfile] [ptsize] [dpi]
+        ./freetype_test [charcode] [fontfile] [ptsize] [dpi] [stretch] [output_file]
 
         e.g.:
 
-        ./freetype_test Vera.ttf 12 300
+        ./freetype_test Vera.ttf 97 20 500 8 test.pgm
 
+        To match what matplotlib does, set stretch to 8.  To turn off
+        the effect of stretching (to see if it matters) set stretch to
+        1.
 
+        The output file is a PGM format file, which can be converted
+        to other formats using ImageMagick.

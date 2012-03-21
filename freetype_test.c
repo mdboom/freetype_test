@@ -8,48 +8,38 @@
 #define HORIZ_HINTING 8
 
 int
-display_cbox(const char* name, unsigned long flags,
-             unsigned long charcode, FT_Face face) {
-  int error;
-  FT_Glyph glyph;
-  FT_BBox bbox;
-
-  if (error = FT_Load_Char(face, charcode, flags)) {
-    printf("FT_Load_Char error: 0x%x\n", error);
-    return 1;
-  }
-
-  if (error = FT_Get_Glyph(face->glyph, &glyph)) {
-    printf("FT_Get_Glyph error: 0x%x\n", error);
-    return 1;
-  }
-
-  FT_Glyph_Get_CBox(glyph, ft_glyph_bbox_subpixels, &bbox);
-
-  printf("CBox [%s]: xMin: %ld yMin: %ld xMax: %ld yMax: %ld\n",
-         name, bbox.xMin, bbox.yMin, bbox.xMax, bbox.yMax);
-
-  return 0;
-}
-
-
-int
 main(int argc, char** argv)
 {
   int error;
   FT_Library library;
   FT_Face face;
-  FT_Matrix transform = { 65536 / HORIZ_HINTING, 0, 0, 65536 };
-  unsigned long i;
+  FT_Matrix transform;
+  FT_Glyph glyph;
+  FT_BitmapGlyph bitmap_glyph;
+  FT_Bitmap bitmap;
+  unsigned long i, j;
+
+  char *fontfn;
+  unsigned long charcode;
   unsigned long size;
   unsigned long dpi;
+  unsigned long stretch;
+  char *outputfn;
+  FILE *output;
 
-  sscanf(argv[2], "%lu", &size);
-  sscanf(argv[3], "%lu", &dpi);
+  fontfn = argv[1];
+  sscanf(argv[2], "%lu", &charcode);
+  sscanf(argv[3], "%lu", &size);
+  sscanf(argv[4], "%lu", &dpi);
+  sscanf(argv[5], "%lu", &stretch);
+  outputfn = argv[6];
 
-  printf("Testing font '%s'\n", argv[1]);
+  printf("Testing font '%s'\n", fontfn);
+  printf("Charcode %lu\n", charcode);
   printf("Font size %lu\n", size);
   printf("DPI %lu\n", dpi);
+  printf("Stretch %lu\n", stretch);
+  printf("Output file '%s'\n", outputfn);
 
   if (error = FT_Init_FreeType(&library)) {
     printf("FT_Init_FreeType error: 0x%x\n", error);
@@ -69,37 +59,55 @@ main(int argc, char** argv)
     return 1;
   }
 
- #ifdef VERTICAL_HINTING
-  FT_Set_Transform(face, &transform, 0);
+  if (stretch > 1) {
+    transform.xx = 65536 / stretch;
+    transform.xy = 0;
+    transform.yx = 0;
+    transform.yy = 65536;
+    FT_Set_Transform(face, &transform, 0);
+    if (error = FT_Set_Char_Size(face, (long)(size * 64), 0, dpi * stretch, dpi)) {
+      printf("FT_Set_Char_Size error: 0x%x\n", error);
+      return 1;
+    }
+  } else {
+    if (error = FT_Set_Char_Size(face, size * 64, 0, dpi, dpi)) {
+      printf("FT_Set_Char_Size error: 0x%x\n", error);
+      return 1;
+    }
+  }
 
-  if (error = FT_Set_Char_Size(face, size * 64, 0, dpi * HORIZ_HINTING, dpi)) {
-    printf("FT_Set_Char_Size error: 0x%x\n", error);
+  if (error = FT_Load_Char(face, charcode, FT_LOAD_NO_HINTING)) {
+    printf("FT_Load_Char error: 0x%x\n", error);
     return 1;
   }
- #else
-  if (error = FT_Set_Char_Size(face, size * 64, 0, dpi, dpi)) {
-    printf("FT_Set_Char_Size error: 0x%x\n", error);
+
+  if (error = FT_Get_Glyph(face->glyph, &glyph)) {
+    printf("FT_Get_Glyph error: 0x%x\n", error);
     return 1;
   }
- #endif
 
-  for (i = 33; i < 127; ++i) {
-
-    printf("Charcode %lu\n", i);
-
-    if (display_cbox("DEFAULT", FT_LOAD_DEFAULT, i, face)) {
-      return 1;
-    }
-
-    if (display_cbox("NO_HINTING", FT_LOAD_NO_HINTING, i, face)) {
-      return 1;
-    }
-
-    if (display_cbox("FORCE_AUTOHINT", FT_LOAD_FORCE_AUTOHINT, i, face)) {
-      return 1;
-    }
-
+  if (error = FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, 0, 1)) {
+    printf("FT_Glyph_To_Bitmap error: 0x%x\n", error);
+    return 1;
   }
+
+  bitmap_glyph = (FT_BitmapGlyph)glyph;
+  bitmap = bitmap_glyph->bitmap;
+
+  output = fopen(outputfn, "w");
+
+  fprintf(output, "P2\n%d %d\n256\n\n", bitmap.width, bitmap.rows);
+
+  for (i = 0; i < bitmap.rows; ++i) {
+    for (j = 0; j < bitmap.width; ++j) {
+      fprintf(output, "%03hu ", 255 - bitmap.buffer[i * bitmap.pitch + j]);
+    }
+    fprintf(output, "\n");
+  }
+
+  fclose(output);
+
+  FT_Done_Glyph(glyph);
 
   return 0;
 }
