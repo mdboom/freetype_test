@@ -4,9 +4,6 @@
 
 #include <stdio.h>
 
-#define VERTICAL_HINTING
-#define HORIZ_HINTING 8
-
 int
 main(int argc, char** argv)
 {
