@@ -17,10 +17,10 @@ int main(int argc, char** argv)
   FT_Glyph glyph;
   FT_BBox bbox;
 
-  charcode = sscanf(argv[2], "%lu", &charcode);
+  sscanf(argv[2], "%lu", &charcode);
 
   printf("Testing font '%s'\n", argv[1]);
-  printf("Testing charcode '%lu'\n", charcode);
+  printf("Testing charcode %lu\n", charcode);
 
   if (error = FT_Init_FreeType(&library)) {
     printf("FT_Init_FreeType error: 0x%x\n", error);
