@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 
-#define VERTICAL_HINTING
+/* #define VERTICAL_HINTING */
 #define HORIZ_HINTING 8
 
 int
@@ -40,12 +40,9 @@ main(int argc, char** argv)
   FT_Library library;
   FT_Face face;
   FT_Matrix transform = { 65536 / HORIZ_HINTING, 0, 0, 65536 };
-  FT_ULong charcode;
-
-  sscanf(argv[2], "%lu", &charcode);
+  unsigned long i;
 
   printf("Testing font '%s'\n", argv[1]);
-  printf("Testing charcode %lu\n", charcode);
 
   if (error = FT_Init_FreeType(&library)) {
     printf("FT_Init_FreeType error: 0x%x\n", error);
@@ -79,16 +76,22 @@ main(int argc, char** argv)
   }
  #endif
 
-  if (display_cbox("DEFAULT", FT_LOAD_DEFAULT, charcode, face)) {
-    return 1;
-  }
+  for (i = 33; i < 127; ++i) {
 
-  if (display_cbox("NO_HINTING", FT_LOAD_NO_HINTING, charcode, face)) {
-    return 1;
-  }
+    printf("Charcode %lu\n", i);
 
-  if (display_cbox("FORCE_AUTOHINT", FT_LOAD_FORCE_AUTOHINT, charcode, face)) {
-    return 1;
+    if (display_cbox("DEFAULT", FT_LOAD_DEFAULT, i, face)) {
+      return 1;
+    }
+
+    if (display_cbox("NO_HINTING", FT_LOAD_NO_HINTING, i, face)) {
+      return 1;
+    }
+
+    if (display_cbox("FORCE_AUTOHINT", FT_LOAD_FORCE_AUTOHINT, i, face)) {
+      return 1;
+    }
+
   }
 
   return 0;
