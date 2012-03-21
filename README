@@ -1,0 +1,17 @@
+A simple test to track down some platform-specific differences we were
+seeing in freetype font rendering inside of matplotlib.
+
+Thanks to Thomas Robitaille (@astrofrog) for setting a lot of the
+theoretical groundwork for this.
+
+BUILD:
+        make
+
+RUN:
+        ./freetype_test [fontfile] [charcode]
+
+        e.g.:
+
+        ./freetype_test Vera.ttf 65
+
+
