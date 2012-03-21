@@ -93,6 +93,9 @@ main(int argc, char** argv)
 
   output = fopen(outputfn, "w");
 
+  printf("bitmap numgrays %d\n", bitmap.num_grays);
+  printf("bitmap pixel_mode %d\n", bitmap.pixel_mode);
+
   fprintf(output, "P2\n%d %d\n256\n\n", bitmap.width, bitmap.rows);
 
   for (i = 0; i < bitmap.rows; ++i) {
