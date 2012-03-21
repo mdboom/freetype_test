@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 
-/* #define VERTICAL_HINTING */
+#define VERTICAL_HINTING
 #define HORIZ_HINTING 8
 
 int
