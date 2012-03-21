@@ -41,8 +41,15 @@ main(int argc, char** argv)
   FT_Face face;
   FT_Matrix transform = { 65536 / HORIZ_HINTING, 0, 0, 65536 };
   unsigned long i;
+  unsigned long size;
+  unsigned long dpi;
+
+  sscanf(argv[2], "%lu", &size);
+  sscanf(argv[3], "%lu", &dpi);
 
   printf("Testing font '%s'\n", argv[1]);
+  printf("Font size %lu\n", size);
+  printf("DPI %lu\n", dpi);
 
   if (error = FT_Init_FreeType(&library)) {
     printf("FT_Init_FreeType error: 0x%x\n", error);
@@ -65,12 +72,12 @@ main(int argc, char** argv)
  #ifdef VERTICAL_HINTING
   FT_Set_Transform(face, &transform, 0);
 
-  if (error = FT_Set_Char_Size(face, 12 * 64, 0, 72 * HORIZ_HINTING, 72)) {
+  if (error = FT_Set_Char_Size(face, size * 64, 0, dpi * HORIZ_HINTING, dpi)) {
     printf("FT_Set_Char_Size error: 0x%x\n", error);
     return 1;
   }
  #else
-  if (error = FT_Set_Char_Size(face, 12 * 64, 0, 72, 72)) {
+  if (error = FT_Set_Char_Size(face, size * 64, 0, dpi, dpi)) {
     printf("FT_Set_Char_Size error: 0x%x\n", error);
     return 1;
   }

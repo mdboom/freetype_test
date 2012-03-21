@@ -8,10 +8,10 @@ BUILD:
         make
 
 RUN:
-        ./freetype_test [fontfile] [charcode]
+        ./freetype_test [fontfile] [ptsize] [dpi]
 
         e.g.:
 
-        ./freetype_test Vera.ttf 65
+        ./freetype_test Vera.ttf 12 300
 
 
