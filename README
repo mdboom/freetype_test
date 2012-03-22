@@ -12,11 +12,11 @@ RUN:
 
         e.g.:
 
-        ./freetype_test Vera.ttf 97 20 500 8 test.pgm
+        ./freetype_test Vera.ttf 97 20 500 8 test
 
         To match what matplotlib does, set stretch to 8.  To turn off
         the effect of stretching (to see if it matters) set stretch to
         1.
 
-        The output file is a PGM format file, which can be converted
-        to other formats using ImageMagick.
+        This will output two files, test_grey.pgm (greyscale antialiased)
+        and test_mono.pgm (monochrome bitmap).
